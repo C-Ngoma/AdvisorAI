@@ -1,2 +1,3 @@
 # AdvisorAI
-BusinessAnalysis3.2-GroupAssignment
+
+AI-Powered Career & Education Pathfinder
