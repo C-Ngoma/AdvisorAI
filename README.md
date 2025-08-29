@@ -1,3 +1,3 @@
 # AdvisorAI
 
-AI-Powered Career & Education Pathfinder
+AI-Powered Career 
