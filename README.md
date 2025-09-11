@@ -1,21 +1,19 @@
-# AdvisorAI
+#🎓 Career Path Advisory AI
+----
+*“Your AI-powered career counselor — matching students to real-world opportunities.”*
+----
+##📌 Project Overview
 
-AI-powered career advisory platform with deep learning resume parsing and job matching.
+Career Path Advisory AI is a system that recommends career paths to students based on their academic background, skills, and job market trends.
+It uses NLP, time series forecasting, and deep learning to provide interactive career guidance.
+Developed by a group of 10 dedicated students who witnessed a significant rise in unemployment, AdvisorAI aims to empower individuals by leveraging data collection and AI-driven insights. Our mission is to bridge the gap between opportunity and talent, offering actionable advice and guidance to help users achieve their goals. 
+-----
+##🚀 Features
 
-## Features
-
-### 🤖 Deep Learning Resume Matcher (New!)
-Advanced resume parsing and job matching using transformer embeddings and deep learning.
-
-- **Resume Parser**: Extracts skills, experience, and education from resume text
-- **Deep Learning Embeddings**: Uses transformer models (with TF-IDF fallback)
-- **Intelligent Job Matching**: Semantic similarity-based candidate-job matching
-- **Web API**: RESTful endpoints for integration
-- **Filtering & Ranking**: Advanced filtering by salary, experience, industry, etc.
-
-### 📊 Traditional Skill Matcher
-TF-IDF based skill matching for baseline comparisons.
-
+🗣️ NLP Career Queries → Answer questions like “What can I do with a degree in Economics?”
+📈 Salary & Demand Forecasting → Predict job demand and salary trends using time series analysis
+🤖 Deep Resume & Skill Matching → Match a student’s skills with job requirements and recommend roles 
+-----
 ## Quick Start
 
 ### 1. Install Dependencies
@@ -48,71 +46,11 @@ python src/web/deep_matcher_api.py
 
 # Visit http://localhost:5000 for interactive demo
 ```
-
 ### 4. Run Demo
 ```bash
 # Comprehensive demo with examples
 python demo_deep_matcher.py
 ```
-
-### 5. Run Tests
-# AdvisorAI
-
-AI-powered career advisory platform with deep learning resume parsing and job matching.
-
-## Features
-
-### 🤖 Deep Learning Resume Matcher (New!)
-Advanced resume parsing and job matching using transformer embeddings and deep learning.
-
-- **Resume Parser**: Extracts skills, experience, and education from resume text
-- **Deep Learning Embeddings**: Uses transformer models (with TF-IDF fallback)
-- **Intelligent Job Matching**: Semantic similarity-based candidate-job matching
-- **Web API**: RESTful endpoints for integration
-- **Filtering & Ranking**: Advanced filtering by salary, experience, industry, etc.
-
-### 📊 Traditional Skill Matcher
-TF-IDF based skill matching for baseline comparisons.
-
-## Quick Start
-
-### 1. Install Dependencies
-```bash
-pip install pandas scikit-learn flask sentence-transformers torch
-```
-
-### 2. Basic Usage
-```python
-from src.deep_resume_matcher import DeepResumeMatcherAPI
-
-# Initialize the API
-api = DeepResumeMatcherAPI()
-
-# Match resume text to jobs
-result = api.match_resume_text("""
-John Doe - Software Engineer
-Experience: 3 years
-Skills: Python, machine learning, AWS, Docker
-Education: Master's degree
-""", top_k=5)
-
-print(f"Found {result['total_matches']} matches!")
-```
-
-### 3. Web API Demo
-```bash
-# Start the web server
-python src/web/deep_matcher_api.py
-
-# Visit http://localhost:5000 for interactive demo
-```
-
-### 4. Run Demo
-```bash
-# Comprehensive demo with examples
-python demo_deep_matcher.py
-```
-
 ### 5. Run Tests
 ```bash
 python tests/test_deep_resume_matcher.py
@@ -167,9 +105,13 @@ Health check endpoint.
 ### GET `/stats`
 System statistics and dataset information.
 
-## Architecture
+##📂 Project Structure
 
 ```
+datacollection/
+└── ai_job_dataset_cleaned.csv    # AI job dataset (15,000 jobs)
+scripts/
+  |__test_datasets.sh
 src/
 ├── deep_resume_matcher.py     # Main deep learning module
 │   ├── ResumeParser           # Extract structured data from text
@@ -182,11 +124,14 @@ src/
 
 tests/
 └── test_deep_resume_matcher.py   # Comprehensive test suite
+│──.gitignore/                    #directories to ignore
+│── README.md                     # Project documentation
+│──demo_deep_matcher.py           # project's matching functionality
+│──requirements.txt               #lists all Python package dependencies needed to run your project
 
-datacollection/
-└── ai_job_dataset_cleaned.csv    # AI job dataset (15,000 jobs)
+
 ```
-
+-------
 ## Key Features
 
 ### 🧠 Intelligent Resume Parsing
@@ -212,7 +157,7 @@ datacollection/
 - **Fast Matching**: Optimized for real-time performance
 - **Scalable**: Batch processing and caching support
 - **Robust**: Handles errors gracefully with fallbacks
-
+-------
 ## Examples
 
 ### Resume Text Matching
@@ -231,7 +176,7 @@ result = api.match_resume_text(
     }
 )
 ```
-
+------
 ### Structured Candidate Matching
 ```python
 candidate_data = {
@@ -243,7 +188,7 @@ candidate_data = {
 
 result = api.match_candidate_data(candidate_data, top_k=10)
 ```
-
+------
 ## Dataset
 
 The system uses `datacollection/ai_job_dataset_cleaned.csv` containing:
@@ -267,46 +212,28 @@ def process_candidate_application(resume_text, filters=None):
     matches = matcher.match_resume_text(resume_text, filters=filters)
     return matches['matches']
 ```
-
+----
 ### Web Integration
 The Flask API provides RESTful endpoints that can be integrated with any web frontend or mobile application.
-
-## Development
-
-### Adding New Skills
-Update `skill_patterns` in `ResumeParser` class:
-```python
-self.skill_patterns = {
-    'programming': ['python', 'java', 'new_language'],
-    'new_category': ['skill1', 'skill2', 'skill3']
-}
-```
-
+-----
 ### Custom Embedding Models
 ```python
 # Use different transformer model
 api = DeepResumeMatcherAPI()
 api.job_matcher.embedding_model = EmbeddingModel('your-model-name')
 ```
-
+----
 ### Extending Filters
 Add custom filters in `JobMatcher._apply_filters()` method.
-
+----
 ## Performance Notes
 
 - **Transformer Models**: Require internet connection for first-time download
 - **Offline Mode**: Automatically falls back to TF-IDF when transformers unavailable  
 - **Memory Usage**: ~500MB for transformer models, ~50MB for TF-IDF fallback
 - **Speed**: ~100ms per query with transformers, ~10ms with TF-IDF
-
-## Contributing
-
-1. Add new features to appropriate classes
-2. Update tests in `tests/test_deep_resume_matcher.py`
-3. Run tests: `python tests/test_deep_resume_matcher.py`
-4. Update documentation
-
+------
 ## License
 
 MIT License - see LICENSE file for details.
-
+-----
