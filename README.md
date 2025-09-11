@@ -1,5 +1,3 @@
----
-
 # 🎓 Career Path Advisory AI
 
 *Your AI-powered career counselor — matching students to real-world opportunities.*
