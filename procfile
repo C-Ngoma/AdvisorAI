@@ -1,0 +1,1 @@
+web: gunicorn web.deep_matcher_api:app
