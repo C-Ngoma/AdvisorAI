@@ -31,6 +31,10 @@ jobs:
           pip install -r requirements.txt
           pip install pytest coverage
 
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=src --cov-report=xml
+
       - name: Create test datasets
         run: |
           chmod +x scripts/test_datasets.sh
