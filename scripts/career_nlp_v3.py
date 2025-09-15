@@ -133,6 +133,21 @@ def match_jobs(query, top_n=5):
     # Sort by salary
     results = results.sort_values(by='salary_usd', ascending=False)
     return results.head(top_n)
+    import pandas as pd
+
+# Dummy job dataset
+jobs_df = pd.DataFrame({
+    "job_title": ["Data Scientist", "Software Engineer", "Marketing Analyst"],
+    "industry": ["Tech", "Tech", "Marketing"],
+    "company_location": ["USA", "UK", "Canada"],
+    "salary_usd": [120000, 100000, 70000]
+})
+
+# Simple match_jobs function for testing
+def match_jobs(query):
+    # Case-insensitive keyword match in job titles
+    matches = jobs_df[jobs_df['job_title'].str.contains(query, case=False, na=False)]
+    return matches
 if __name__ == "__main__":
     print("Welcome to the Career NLP Module!\n")
 
