@@ -133,3 +133,20 @@ def match_jobs(query, top_n=5):
     # Sort by salary
     results = results.sort_values(by='salary_usd', ascending=False)
     return results.head(top_n)
+if __name__ == "__main__":
+    print("Welcome to the Career NLP Module!\n")
+
+    while True:
+        query = input("Type your career/job query (or 'exit' to quit): ")
+
+        if query.lower() == "exit":
+            break
+
+        results = match_jobs(query)
+
+        if results.empty:
+            print("No matches found. Try rephrasing your query.\n")
+        else:
+            print("\nTop Job Matches:")
+            print(results[['job_title', 'industry', 'company_location', 'salary_usd']].to_string(index=False))
+            print("\n")
