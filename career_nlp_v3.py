@@ -149,6 +149,8 @@ def match_jobs(query, top_n=5):
 
     if entities['location']:
         results = results[results['company_location'].isin(entities['location'])]
+        if results.empty:
+    print("No exact matches found. Consider revising skills, experience, or location.")
 
     # Sort by salary
     results = results.sort_values(by='salary_usd', ascending=False)
@@ -196,5 +198,18 @@ def match_jobs(query, top_n=5):
     results = results.sort_values(by='match_score', ascending=False)
     
     return results.head(top_n)
+if __name__ == "__main__":
+    test_queries = [
+        "I studied finance but want a role in tech",
+        "Looking for entry-level machine learning jobs in Cape Town",
+        "Experienced software engineer with cloud skills"
+    ]
+    
+    for q in test_queries:
+        print("Query:", q)
+        print("Intent:", detect_intent(q))
+        print("Entities:", extract_entities(q))
+        print("Top jobs:", match_jobs(q))
+        print("-----")
 
 
