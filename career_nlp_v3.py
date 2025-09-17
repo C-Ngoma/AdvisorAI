@@ -163,29 +163,38 @@ jobs_df = pd.DataFrame({
     "salary_usd": [120000, 100000, 70000]
 })
 
-# Simple match_jobs function for testing
-def match_jobs(query):
-    # Case-insensitive keyword match in job titles
-    matches = jobs_df[jobs_df['job_title'].str.contains(query, case=False, na=False)]
-    return matches
-if __name__ == "__main__":
-    print("Welcome to the Career NLP Module!\n")
+def match_jobs(query, top_n=5):
+    intent = detect_intent(query)
+    entities = extract_entities(query)
+    
+    results = df.copy()
+    
+    def score_job(row):
+        score = 0
+        # Skills
+        if entities['skills']:
+            for skill in entities['skills']:
+                if skill.lower() in row['required_skills'].lower():
+                    score += 2
+        # Education
+        if entities['education'] and row['education_required'] in entities['education']:
+            score += 1
+        # Experience
+        if entities['experience'] and row['experience_level'] in entities['experience']:
+            score += 1
+        # Industry / intent
+        if row['industry'] in entities['industry'] or row['industry'] == intent:
+            score += 2
+        # Location
+        if entities['location'] and row['company_location'] in entities['location']:
+            score += 1
+        # Salary boost
+        score += row['salary_usd'] / 100000  # optional scaling
+        return score
+    
+    results['match_score'] = results.apply(score_job, axis=1)
+    results = results.sort_values(by='match_score', ascending=False)
+    
+    return results.head(top_n)
 
-    while True:
-        query = input("Type your career/job query (or 'exit' to quit): ")
-
-        if query.lower() == "exit":
-            break
-
-        results = match_jobs(query)
-
-        if results.empty:
-            print("No matches found. Try rephrasing your query.\n")
-        else:
-            print("\nTop Job Matches:")
-            print(results[['job_title', 'industry', 'company_location', 'salary_usd']].to_string(index=False))
-            print("\n")
-if __name__ == "__main__":
-    query = "I studied finance but want a role in tech"
-    print(detect_intent(query))
 
