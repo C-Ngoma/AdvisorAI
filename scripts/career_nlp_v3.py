@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 # -------------------
 # Load Dataset
 # -------------------
-df = pd.read_csv(r"C:\Desktop\PROJECTT\datacollection\ai_job_dataset_merged.csv")
+df = pd.read_csv("datacollection/ai_job_dataset_merged.csv")
 
 # -------------------
 # Initialize spaCy
@@ -113,7 +113,9 @@ def match_jobs(query, top_n=5):
 
     # Filter by extracted entities
     if entities['skills']:
-        results = results[results['required_skills'].apply(lambda x: any(skill.lower() in x.lower() for skill in entities['skills']))]
+        results = results[results['required_skills'].apply(
+            lambda x: any(skill.lower() in x.lower() for skill in entities['skills'])
+        )]
 
     if entities['education']:
         results = results[results['education_required'].isin(entities['education'])]
@@ -124,12 +126,54 @@ def match_jobs(query, top_n=5):
     if entities['industry']:
         results = results[results['industry'].isin(entities['industry'])]
     else:
-        # fallback to intent
         results = results[results['industry'] == intent]
 
     if entities['location']:
         results = results[results['company_location'].isin(entities['location'])]
 
-    # Sort by salary
+    if results.empty:
+        return pd.DataFrame(columns=df.columns)
+
     results = results.sort_values(by='salary_usd', ascending=False)
     return results.head(top_n)
+
+# -------------------
+# Dummy job dataset for quick testing
+# -------------------
+jobs_df = pd.DataFrame({
+    "job_title": ["Data Scientist", "Software Engineer", "Marketing Analyst"],
+    "industry": ["Tech", "Tech", "Marketing"],
+    "company_location": ["USA", "UK", "Canada"],
+    "salary_usd": [120000, 100000, 70000]
+})
+
+# Simple match function for dummy dataset
+def dummy_match_jobs(query):
+    matches = jobs_df[jobs_df['job_title'].str.contains(query, case=False, na=False)]
+    return matches
+
+# -------------------
+# User Input Loop
+# -------------------
+if __name__ == "__main__":
+    print("Welcome to the Career NLP Module!\n")
+    while True:
+        query = input("Type your career/job query (or 'exit' to quit): ")
+        if query.lower() == "exit":
+            break
+
+        print("\n--- NLP Matching Jobs ---")
+        real_results = match_jobs(query)
+        if real_results.empty:
+            print("No NLP dataset matches found.")
+        else:
+            print(real_results[['job_title','company_name','salary_usd','required_skills','education_required','experience_level','industry','company_location']].to_string(index=False))
+
+        print("\n--- Dummy Test Jobs ---")
+        dummy_results = dummy_match_jobs(query)
+        if dummy_results.empty:
+            print("No dummy matches found.")
+        else:
+            print(dummy_results[['job_title','industry','company_location','salary_usd']].to_string(index=False))
+        print("\n")
+
