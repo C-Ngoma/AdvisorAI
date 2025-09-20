@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 # -------------------
 # Load dataset
 # -------------------
-df = pd.read_csv(r"C:\Desktop\PROJECTT\datacollection\ai_job_dataset_merged.csv")
+df = pd.read_csv("datacollection/ai_job_dataset_merged.csv")
 
 # -------------------
 # Initialize spaCy
