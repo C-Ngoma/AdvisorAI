@@ -103,7 +103,7 @@ def detect_intent(query):
     return clf.predict(query_vec)[0]
 
 # -------------------
-# Job Matching
+# Job Matching (NLP Dataset)
 # -------------------
 def match_jobs(query, top_n=5):
     intent = detect_intent(query)
@@ -111,7 +111,6 @@ def match_jobs(query, top_n=5):
     
     results = df.copy()
 
-    # Filter by extracted entities
     if entities['skills']:
         results = results[results['required_skills'].apply(
             lambda x: any(skill.lower() in x.lower() for skill in entities['skills'])
@@ -136,16 +135,10 @@ def match_jobs(query, top_n=5):
 
     results = results.sort_values(by='salary_usd', ascending=False)
     return results.head(top_n)
-<<<<<<< HEAD
 
 # -------------------
 # Dummy job dataset for quick testing
 # -------------------
-=======
-    import pandas as pd
-
-# Dummy job dataset
->>>>>>> b74734997842c56131e18792c7e3be8a7f10770f
 jobs_df = pd.DataFrame({
     "job_title": ["Data Scientist", "Software Engineer", "Marketing Analyst"],
     "industry": ["Tech", "Tech", "Marketing"],
@@ -153,8 +146,6 @@ jobs_df = pd.DataFrame({
     "salary_usd": [120000, 100000, 70000]
 })
 
-<<<<<<< HEAD
-# Simple match function for dummy dataset
 def dummy_match_jobs(query):
     matches = jobs_df[jobs_df['job_title'].str.contains(query, case=False, na=False)]
     return matches
@@ -183,28 +174,3 @@ if __name__ == "__main__":
         else:
             print(dummy_results[['job_title','industry','company_location','salary_usd']].to_string(index=False))
         print("\n")
-
-=======
-# Simple match_jobs function for testing
-def match_jobs(query):
-    # Case-insensitive keyword match in job titles
-    matches = jobs_df[jobs_df['job_title'].str.contains(query, case=False, na=False)]
-    return matches
-if __name__ == "__main__":
-    print("Welcome to the Career NLP Module!\n")
-
-    while True:
-        query = input("Type your career/job query (or 'exit' to quit): ")
-
-        if query.lower() == "exit":
-            break
-
-        results = match_jobs(query)
-
-        if results.empty:
-            print("No matches found. Try rephrasing your query.\n")
-        else:
-            print("\nTop Job Matches:")
-            print(results[['job_title', 'industry', 'company_location', 'salary_usd']].to_string(index=False))
-            print("\n")
->>>>>>> b74734997842c56131e18792c7e3be8a7f10770f
