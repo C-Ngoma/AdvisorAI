@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
 # -------------------
-# Load dataset
+# Load Dataset
 # -------------------
 df = pd.read_csv("datacollection/ai_job_dataset_merged.csv")
 
@@ -15,7 +15,7 @@ df = pd.read_csv("datacollection/ai_job_dataset_merged.csv")
 nlp = spacy.load("en_core_web_sm")
 
 # -------------------
-# Build skill, education, industry, experience lists
+# Build skill list
 # -------------------
 _skill_set = set()
 for skills_str in df['required_skills'].dropna():
@@ -31,9 +31,11 @@ _extra_skills = [
 _skill_set.update(_extra_skills)
 skill_list = sorted(_skill_set)
 
+# -------------------
+# Other entity lists
+# -------------------
 education_list = df['education_required'].dropna().unique().tolist()
 industry_list = df['industry'].dropna().unique().tolist()
-
 experience_map = {
     "entry": "EN", "entry-level": "EN", "junior": "EN", "intern": "EN",
     "mid": "EX", "mid-level": "EX", "experienced": "EX",
@@ -41,14 +43,14 @@ experience_map = {
 }
 
 # -------------------
-# PhraseMatcher for skills
+# Initialize PhraseMatcher
 # -------------------
 skill_matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
 _skill_patterns = [nlp.make_doc(s) for s in skill_list]
 skill_matcher.add("SKILL", _skill_patterns)
 
 # -------------------
-# Entity extraction
+# Entity Extraction
 # -------------------
 def extract_entities(query):
     doc = nlp(query)
@@ -88,11 +90,11 @@ def extract_entities(query):
     return entities
 
 # -------------------
-# Intent detection
+# Intent Detection
 # -------------------
 vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(df['job_title'])
-y = df['industry']  # using industry as intent
+y = df['industry']
 clf = LogisticRegression(max_iter=1000)
 clf.fit(X, y)
 
@@ -101,54 +103,74 @@ def detect_intent(query):
     return clf.predict(query_vec)[0]
 
 # -------------------
-# Job matching
+# Job Matching (NLP Dataset)
 # -------------------
 def match_jobs(query, top_n=5):
     intent = detect_intent(query)
     entities = extract_entities(query)
     
     results = df.copy()
-    
-    # Filter by extracted entities
+
     if entities['skills']:
-        results = results[results['required_skills'].apply(lambda x: any(skill.lower() in x.lower() for skill in entities['skills']))]
-    
+        results = results[results['required_skills'].apply(
+            lambda x: any(skill.lower() in x.lower() for skill in entities['skills'])
+        )]
+
     if entities['education']:
         results = results[results['education_required'].isin(entities['education'])]
-    
+
     if entities['experience']:
         results = results[results['experience_level'].isin(entities['experience'])]
-    
+
     if entities['industry']:
         results = results[results['industry'].isin(entities['industry'])]
     else:
         results = results[results['industry'] == intent]
-    
+
     if entities['location']:
         results = results[results['company_location'].isin(entities['location'])]
-    
-    # Fallback: if no matches, return top N by salary
+
     if results.empty:
-        results = df.sort_values(by='salary_usd', ascending=False)
-    
+        return pd.DataFrame(columns=df.columns)
+
+    results = results.sort_values(by='salary_usd', ascending=False)
     return results.head(top_n)
 
 # -------------------
-# Example usage
+# Dummy job dataset for quick testing
+# -------------------
+jobs_df = pd.DataFrame({
+    "job_title": ["Data Scientist", "Software Engineer", "Marketing Analyst"],
+    "industry": ["Tech", "Tech", "Marketing"],
+    "company_location": ["USA", "UK", "Canada"],
+    "salary_usd": [120000, 100000, 70000]
+})
+
+def dummy_match_jobs(query):
+    matches = jobs_df[jobs_df['job_title'].str.contains(query, case=False, na=False)]
+    return matches
+
+# -------------------
+# User Input Loop
 # -------------------
 if __name__ == "__main__":
-    queries = [
-        "High school teacher position in South Africa requiring a Bachelor’s degree in Education.",
-        "Doctor job in USA for a cardiologist with 10 years experience.",
-        "Police officer job in South Africa with entry level training."
-    ]
-    
-    for q in queries:
-        print("\nQuery:", q)
-        entities = extract_entities(q)
-        intent = detect_intent(q)
-        top_jobs = match_jobs(q)
-        
-        print("Entities:", entities)
-        print("Intent:", intent)
-        print("Top Jobs:\n", top_jobs[['job_title','company_name','salary_usd','industry','company_location']])
+    print("Welcome to the Career NLP Module!\n")
+    while True:
+        query = input("Type your career/job query (or 'exit' to quit): ")
+        if query.lower() == "exit":
+            break
+
+        print("\n--- NLP Matching Jobs ---")
+        real_results = match_jobs(query)
+        if real_results.empty:
+            print("No NLP dataset matches found.")
+        else:
+            print(real_results[['job_title','company_name','salary_usd','required_skills','education_required','experience_level','industry','company_location']].to_string(index=False))
+
+        print("\n--- Dummy Test Jobs ---")
+        dummy_results = dummy_match_jobs(query)
+        if dummy_results.empty:
+            print("No dummy matches found.")
+        else:
+            print(dummy_results[['job_title','industry','company_location','salary_usd']].to_string(index=False))
+        print("\n")
